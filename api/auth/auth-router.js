@@ -13,7 +13,7 @@ router.post('/register', validUsername, (req, res) => {
   User.add({username:username, password:password})
     .then(newUser => {
    
-      res.status(201).json(newUser.id, newUser.username, newUser.password)
+      res.status(201).json(newUser).first()
     })
     .catch(err => {
       res.status(500).json({message: `Error : ${err}`})
