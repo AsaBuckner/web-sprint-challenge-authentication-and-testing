@@ -5,12 +5,12 @@ const validUsername = async (req,res,next)  =>{
     //1. map over the username table and see if anything 
     //matches the req.body.username after trim
     //1C. if no password or usename are found return "username and password required"
-    if(!req.body.username || !req.body.password || req.body.username.trim === '' || req.body.password.trim === ''){
+    if(!req.body.username || !req.body.password || req.body.username.trim() === '' || req.body.password.trim() === ''){
         next(res.status(404).json("username and password required"))
     }
     //1A. if so -- respond with "username taken"
     else{
-        const user  = await User.findByName(req.body.username.trim)
+        const user  = await User.findByName(req.body.username.trim())
             if(user.length > 0){
                   next(res.status(404).json("username taken"))
             }

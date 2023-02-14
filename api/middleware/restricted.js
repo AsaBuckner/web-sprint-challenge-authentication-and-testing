@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken')
+const JWT_SECRET = require('../../secrets/index')
+
 
 module.exports = (req, res, next) => {
   //if no token is found in header.token respond with "token required"
