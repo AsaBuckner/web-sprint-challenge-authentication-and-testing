@@ -1,5 +1,21 @@
+const jwt = require('jsonwebtoken')
+
 module.exports = (req, res, next) => {
-  next();
+  //if no token is found in header.token respond with "token required"
+  const token = req.headers.authorization
+  if(!token){
+    next(res.status(404).json("token required"))
+  }
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      next({ status: 401, message: 'Token invalid'})
+    } else {
+      req.decodedTokoen = decodedToken
+      next()
+    }
+  })
+  //else if invalid or expired token resond with "token invalid"
+  //else respond with next(
   /*
     IMPLEMENT
 
