@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs')
 const User = require('./auth-model')
-const {validUsername, buildToken }=require('../middleware/auth-middleware')
+const {validUsername, buildToken, checkUsernameExists }=require('../middleware/auth-middleware')
 const jwt = require('jsonwebtoken')
 
 
@@ -10,15 +10,17 @@ router.post('/register', validUsername, (req, res) => {
   const password = bcrypt.hashSync(req.body.password,8)
   const username = req.body.username
   
-  User.add({username:username, password:password})
+  User.add({username, password})
     .then(newUser => {
-   
-      res.status(201).json(newUser).first()
+      res.status(201).json({
+        id: newUser.id,
+        username: newUser.username,
+        password: newUser.password
+      })
     })
-    .catch(err => {
-      res.status(500).json({message: `Error : ${err}`})
-    })
-
+  .catch(err => {
+    res.status(500).json({message: `Error : ${err}`})
+  })
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -46,8 +48,17 @@ router.post('/register', validUsername, (req, res) => {
   */
 });
 
-router.post('/login', (req, res) => { 
-  // if (bcrypt.compareSync(req.body.password, req.user.password))
+router.post('/login', checkUsernameExists, (req, res, next) => { 
+  if (bcrypt.compareSync(req.body.password, req.user.password)){
+    const token = buildToken(req.user)
+    res.json( {
+      message : `welcome, ${req.user.username}`,
+      token
+    } )
+  }else{
+    res.status(401).json("invalid credentials")
+  }
+})
   
   /*
     IMPLEMENT
@@ -71,7 +82,6 @@ router.post('/login', (req, res) => {
 
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
-  */
-});
+  */;
 
 module.exports = router;

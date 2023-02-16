@@ -1,6 +1,7 @@
 const User = require('../auth/auth-model')
 const jwt = require('jsonwebtoken')
 
+
 const validUsername = async (req,res,next)  =>{
     //1. map over the username table and see if anything 
     //matches the req.body.username after trim
@@ -24,18 +25,41 @@ const validUsername = async (req,res,next)  =>{
     //const req.username = req.body.username
 
 
+const JWT_SECRET = 'mysecretkey'
 
 function buildToken (user){
     const payload = {
         subject: user.id,
-        username: user.usernam,
-        password: user.password
+        username: user.username,
     }
+    const options = {
+        expiresIn: '1d'
+    }
+    return jwt.sign(payload, JWT_SECRET, options)
+}
+
+
+const checkUsernameExists = (req, res, next) => {
+    const username = req.body.username
+
+    User.findByName(username)
+        .then(users => {
+            if(users.length > 0){
+                req.user = users[0]
+                console.log(req.user)
+                next()
+            }else{
+                next(res.status(406).json("invalid credentials"))
+            }
+        }).catch(err => {
+            next(res.status(500).json(err))
+        })
 }
 
 
 
 module.exports = {
     validUsername,
-    buildToken
+    buildToken,
+    checkUsernameExists
 }
