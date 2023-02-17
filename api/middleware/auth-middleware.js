@@ -41,9 +41,9 @@ function buildToken (user){
 
 const checkUsernameExists = (req, res, next) => {
     if(!req.body.username || !req.body.password || req.body.username.trim() === '' || req.body.password.trim() === ''){
-        next(res.status(404).json("username and password required"))
+        res.status(404).json("username and password required")
     }
-    
+
     const username = req.body.username
 
     User.findByName(username)
@@ -53,7 +53,7 @@ const checkUsernameExists = (req, res, next) => {
                 console.log(req.user)
                 next()
             }else{
-                next(res.status(406).json("invalid credentials"))
+                res.status(406).json("invalid credentials")
             }
         }).catch(err => {
             next(res.status(500).json(err))
