@@ -6,22 +6,21 @@ const JWT_SECRET = 'mysecretkey'
 
 
 module.exports = (req, res, next) => {
+  //if no token is found in header.token respond with "token required"
   const token = req.headers.authorization
 
   if(!token) {
-    return next({ status: 404, message: 'Token required' })
-  }else{
-
-    jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
-      if (err) {
-        return next({ status: 401, message: 'Token invalid' })
-      } else {
-        req.decodedToken = decodedToken
-        next()
-      }
-    })
+    res.status(400).json({message: "token required"})
   }
 
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      res.status(401).json({message: "token invalid" })
+    } else {
+      req.decodedToken = decodedToken
+      next()
+    }
+  })
   //else if invalid or expired token resond with "token invalid"
   //else respond with next(
   /*
